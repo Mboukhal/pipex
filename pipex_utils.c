@@ -6,7 +6,7 @@
 /*   By: mboukhal <mboukhal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/14 20:35:15 by mboukhal          #+#    #+#             */
-/*   Updated: 2022/03/02 14:41:40 by mboukhal         ###   ########.fr       */
+/*   Updated: 2022/03/03 13:44:23 by mboukhal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	cheak_access(char *tmp, int *i, char **line, int *len)
 {
-	if (access (tmp, F_OK) == 0)
+	if (access (tmp, X_OK) == 0)
 	{
 		*i = 0;
 		while (line[(*i)++] != NULL)
@@ -37,6 +37,8 @@ char	*check_valid_path(char **env_var, char *cmd)
 
 	i[0] = 0;
 	i[1] = 0;
+	if (!(access(cmd, X_OK)))
+		return (cmd);
 	while (env_var[i[0]++] != NULL)
 		if (!(ft_strncmp(env_var[i[0]], "PATH=", 5)))
 			break ;
@@ -54,24 +56,6 @@ char	*check_valid_path(char **env_var, char *cmd)
 	}
 	return (tmp);
 }
-
-// void	open_files(int *fd1, int *fd2, char *file_in, char *file_out)
-// {
-// 	*fd1 = access(file_in, F_OK | R_OK);
-// 	if (*fd1 == -1)
-// 	{
-// 		perror (file_in);
-// 		exit (EXIT_FAILURE);
-// 	}
-// 	*fd1 = open(file_in, O_RDONLY);
-// 	*fd2 = access(file_in, F_OK | W_OK);
-// 	if (*fd2 == -1)
-// 	{
-// 		perror (file_out);
-// 		exit (EXIT_FAILURE);
-// 	}
-// 	*fd2 = open(file_out, O_WRONLY);
-// }
 
 void open_in_out_put(int *fd, const char **cmd)
 {

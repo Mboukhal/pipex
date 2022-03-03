@@ -15,6 +15,7 @@
 void	exec_pid(int *fd, char **cmd, char ***arg, int mode)
 {
 	int	i;
+	int ret;
 
 	if (mode == 0)
 		dup2(fd[1], STDOUT_FILENO);
@@ -24,7 +25,12 @@ void	exec_pid(int *fd, char **cmd, char ***arg, int mode)
 	i = 0;
 	while (i < 4)
 		close(fd[i++]);
-	execve(cmd[mode], arg[mode], NULL);
+	ret = execve(cmd[mode], arg[mode], NULL);
+	if (ret == -1)
+	{
+		dprintf(2, "hi there\n");
+		exit(EXIT_FAILURE);
+	}
 }
 
 void	execute_pipe(char **cmd, char ***arg, int *file_fd)
@@ -58,29 +64,29 @@ void	set_file_args(char **av, char **env_var, int *fd)
 {
 	char	**args[2];
 	char	*cmd_path[2];
-	int		i;
+	// int		i;
 
 
-	printf("ok");
+	// printf("ok\n");
 	args[0] = ft_split (av[2], ' ');
 	args[1] = ft_split (av[3], ' ');
 	cmd_path[0] = check_valid_path (env_var, args[0][0]);
 	cmd_path[1] = check_valid_path (env_var, args[1][0]);
 	execute_pipe(cmd_path, args, fd);
-	i = 1;
-	while (args[0][i] != NULL)
-		free(args[0][i++]);
-	i = 1;
-	while (args[1][i] != NULL)
-		free(args[1][i++]);
-	free(args[0]);
-	free(args[1]);
-	free(args);
-	free(cmd_path[0]);
-	free(cmd_path[1]);
-	free(cmd_path);
-	printf("%p %p\n", cmd_path[0], cmd_path);
-	printf("ok");
+// 	i = 1;
+// 	while (args[0][i] != NULL)
+// 		free(args[0][i++]);
+// 	i = 1;
+// 	while (args[1][i] != NULL)
+// 		free(args[1][i++]);
+// 	free(args[0]);
+// 	free(args[1]);
+// 	free(args);
+// 	free(cmd_path[0]);
+// 	free(cmd_path[1]);
+// 	free(cmd_path);
+// 	printf("%p %p\n", cmd_path[0], cmd_path);
+// 	printf("ok");
 }
 
 int	main(int ac, char **av, char **env_var)
