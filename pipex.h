@@ -20,10 +20,6 @@
 # include <errno.h>
 # include"libft.h"
 
-# define FILE_FOUND            1
-# define FILE_NOT_FOUND        1
-
-// void	open_files(int *fd1, int *fd2, char *file_in, char *file_out);
 void	open_in_out_put(int *fd, const char **cmd);
 char	*check_valid_path(char **env_var, char *cmd);
 int		cheak_path(char *path);

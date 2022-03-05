@@ -12,7 +12,7 @@
 
 #include "pipex.h"
 
-int	cheak_access(char *tmp, int *i, char **line, int *len)
+static int	cheak_access(char *tmp, int *i, char **line, int *len)
 {
 	if (access (tmp, X_OK) == 0)
 	{
@@ -26,6 +26,20 @@ int	cheak_access(char *tmp, int *i, char **line, int *len)
 	free(tmp);
 	(*i)++;
 	return (EXIT_SUCCESS);
+}
+
+static char	*set_cmd_test_path(int *len, char *path, char *cmd)
+{
+	char	*tmp;
+
+	len[0] = ft_strlen(path);
+	tmp = malloc (sizeof(char) * (len[0] + len[1] + 2));
+	if (!tmp)
+		exit(EXIT_FAILURE);
+	ft_strlcpy(tmp, path, len[0] + 1);
+	tmp[len[0]] = '/';
+	ft_strlcat(tmp, cmd, len[0] + len[1] + 2);
+	return (tmp);
 }
 
 char	*check_valid_path(char **env_var, char *cmd)
@@ -44,20 +58,16 @@ char	*check_valid_path(char **env_var, char *cmd)
 			break ;
 	line = ft_split(ft_strchr(env_var[i[0]], '/'), ':');
 	len[1] = ft_strlen(cmd);
-	while (line[i[1]] != NULL)
+	while (line[i[1]])
 	{
-		len[0] = ft_strlen(line[i[1]]);
-		tmp = malloc (sizeof(char) * (len[0] + len[1] + 2));
-		ft_strlcpy(tmp, line[i[1]], len[0] + 1);
-		tmp[len[0]] = '/';
-		ft_strlcat(tmp, cmd, len[0] + len[1] + 2);
+		tmp = set_cmd_test_path(len, line[i[1]], cmd);
 		if (cheak_access(tmp, &i[1], line, len) == EXIT_FAILURE)
 			break ;
 	}
 	return (tmp);
 }
 
-void open_in_out_put(int *fd, const char **cmd)
+void	open_in_out_put(int *fd, const char **cmd)
 {
 	fd[0] = open(cmd[1], O_RDONLY);
 	if (fd[0] == -1)
@@ -65,7 +75,7 @@ void open_in_out_put(int *fd, const char **cmd)
 		perror (cmd[1]);
 		exit (EXIT_FAILURE);
 	}
-	fd[1] = open(cmd[4], O_WRONLY | O_CREAT, 0766 );
+	fd[1] = open(cmd[4], O_WRONLY | O_CREAT, 0766);
 	if (fd[1] == -1)
 	{
 		close(fd[0]);

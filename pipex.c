@@ -12,10 +12,10 @@
 
 #include "pipex.h"
 
-void	exec_pid(int *fd, char **cmd, char ***arg, int mode)
+static void	exec_pid(int *fd, char **cmd, char ***arg, int mode)
 {
 	int	i;
-	int ret;
+	int	ret;
 
 	if (mode == 0)
 		dup2(fd[1], STDOUT_FILENO);
@@ -28,14 +28,13 @@ void	exec_pid(int *fd, char **cmd, char ***arg, int mode)
 	ret = execve(cmd[mode], arg[mode], NULL);
 	if (ret == -1)
 	{
-		dprintf(2, "hi there\n");
-		exit(EXIT_FAILURE);
+		write (STDERR_FILENO, arg[mode], ft_strlen(cmd[mode]));
+		exit (EXIT_FAILURE);
 	}
 }
 
-void	execute_pipe(char **cmd, char ***arg, int *file_fd)
+static void	execute_pipe(char **cmd, char ***arg, int *file_fd)
 {
-	int	i;
 	int	fd[4];
 	int	pid[2];
 
@@ -49,44 +48,19 @@ void	execute_pipe(char **cmd, char ***arg, int *file_fd)
 	if (pid[0] == 0)
 		exec_pid(fd, cmd, arg, 0);
 	waitpid(pid[0], NULL, 0);
-	// pid[1] = fork();
-	// if (pid[1] == -1)
-	// 	exit(EXIT_FAILURE);
-	// if (pid[1] == 0)
-		exec_pid(fd, cmd, arg, 1);
-	i = 0;
-	while (i < 4)
-		close(fd[i++]);
-	// waitpid(pid[1], NULL, 0);
+	exec_pid(fd, cmd, arg, 1);
 }
 
-void	set_file_args(char **av, char **env_var, int *fd)
+static void	set_file_args(char **av, char **env_var, int *fd)
 {
 	char	**args[2];
 	char	*cmd_path[2];
-	// int		i;
 
-
-	// printf("ok\n");
 	args[0] = ft_split (av[2], ' ');
 	args[1] = ft_split (av[3], ' ');
 	cmd_path[0] = check_valid_path (env_var, args[0][0]);
 	cmd_path[1] = check_valid_path (env_var, args[1][0]);
 	execute_pipe(cmd_path, args, fd);
-// 	i = 1;
-// 	while (args[0][i] != NULL)
-// 		free(args[0][i++]);
-// 	i = 1;
-// 	while (args[1][i] != NULL)
-// 		free(args[1][i++]);
-// 	free(args[0]);
-// 	free(args[1]);
-// 	free(args);
-// 	free(cmd_path[0]);
-// 	free(cmd_path[1]);
-// 	free(cmd_path);
-// 	printf("%p %p\n", cmd_path[0], cmd_path);
-// 	printf("ok");
 }
 
 int	main(int ac, char **av, char **env_var)
@@ -99,10 +73,21 @@ int	main(int ac, char **av, char **env_var)
 		write (STDERR_FILENO, "ERROR\n\t Non valide args", 24);
 		return (EXIT_FAILURE);
 	}
+	if (!av[1][0] || !av[4][0])
+	{
+		write (STDERR_FILENO, av[0], ft_strlen(av[0]));
+		write (STDERR_FILENO, ": no such file or directory: ", 28);
+		return (EXIT_FAILURE);
+	}
+	if (!av[2][0] || !av[3][0])
+	{
+		write (STDERR_FILENO, av[0], ft_strlen(av[0]));
+		write (STDERR_FILENO, ": permission denied:", 19);
+		return (EXIT_FAILURE);
+	}
 	errno = 0;
 	i = 0;
 	open_in_out_put(fd, (const char **)av);
-	// open_files (&fd[0], &fd[1], av[1], av[4]);
 	set_file_args(av, env_var, fd);
 	return (EXIT_SUCCESS);
 }
