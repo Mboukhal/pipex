@@ -28,8 +28,6 @@ OBJ			= $(CFILES:.c=.o)
 $(NAME):$(OBJ)
 	@$(CC) $(CFLAGS) -o $@ $(OBJ)  $(INCLUDES)
 
-
-
 fclean: clean
 	@$(RM) $(NAME)
 
