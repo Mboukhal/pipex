@@ -12,7 +12,7 @@
 
 #include "pipex.h"
 
-static void	exec_pid(int *fd, char **cmd, char ***arg, int mode)
+static void	exec_pid(int *fd, char **cmd, char **arg, int mode)
 {
 	int	i;
 	int	ret;
@@ -25,15 +25,15 @@ static void	exec_pid(int *fd, char **cmd, char ***arg, int mode)
 	i = 0;
 	while (i < 4)
 		close(fd[i++]);
-	ret = execve(cmd[mode], arg[mode], NULL);
+	ret = execve(cmd[mode], arg, NULL);
 	if (ret == -1)
 	{
-		write (STDERR_FILENO, arg[mode], ft_strlen(cmd[mode]));
+		write (STDERR_FILENO, arg, ft_strlen(cmd[mode]));
 		exit (EXIT_FAILURE);
 	}
 }
 
-static void	execute_pipe(char **cmd, char ***arg, int *file_fd)
+static void	execute_pipe(char **cmd, char **arg1, char **arg2, int *file_fd)
 {
 	int	fd[4];
 	int	pid[2];
@@ -46,21 +46,53 @@ static void	execute_pipe(char **cmd, char ***arg, int *file_fd)
 	if (pid[0] == -1)
 		return ;
 	if (pid[0] == 0)
-		exec_pid(fd, cmd, arg, 0);
+		exec_pid(fd, cmd, arg1, 0);
 	waitpid(pid[0], NULL, 0);
-	exec_pid(fd, cmd, arg, 1);
+	exec_pid(fd, cmd, arg2, 1);
 }
 
 static void	set_file_args(char **av, char **env_var, int *fd)
 {
-	char	**args[2];
+	char	**args1;
+	char	**args2;
+	char	*tmp;
 	char	*cmd_path[2];
 
-	args[0] = ft_split (av[2], ' ');
-	args[1] = ft_split (av[3], ' ');
-	cmd_path[0] = check_valid_path (env_var, args[0][0]);
-	cmd_path[1] = check_valid_path (env_var, args[1][0]);
-	execute_pipe(cmd_path, args, fd);
+	tmp = malloc(sizeof(char) * (ft_strlen(av[2]) + 4));
+	if (av[2][0] == '.' && av[2][1] == '/')
+	{
+		cmd_path[0] = malloc(sizeof(char) *  8);
+		ft_strlcpy(cmd_path[0], "/bin/sh", 8);
+		cmd_path[0][8] = '\0';
+		ft_strlcpy(tmp, "sh ", 4);
+		ft_strlcat(tmp, av[2], ft_strlen(av[2]) + 4);
+		args1 = ft_split(tmp, ' ');
+	}
+	else
+	{
+		args1 = ft_split(av[2], ' ');
+		cmd_path[0] = check_valid_path (env_var, args1[0]);
+	}
+	free(tmp);
+	tmp = malloc(sizeof(char) * (ft_strlen(av[3]) + 4));
+	if (av[3][0] == '.' && av[3][1] == '/')
+	{
+		cmd_path[1] = malloc(sizeof(char) *  8);
+		ft_strlcpy(cmd_path[1], "/bin/sh", 8);
+		cmd_path[1][8] = '\0';
+		ft_strlcpy(tmp, "sh ", 4);
+		ft_strlcat(tmp, av[3], ft_strlen(av[3]) + 4);
+		// printf("%s\n", tmp);
+		args2 = ft_split(tmp, ' ');
+	}
+	else
+	{
+
+		args2 = ft_split(av[3], ' ');
+		cmd_path[1] = check_valid_path (env_var, args2[0]);
+	}
+	free(tmp);
+	execute_pipe(cmd_path, args1, args2, fd);
 }
 
 int	main(int ac, char **av, char **env_var)
@@ -79,7 +111,7 @@ int	main(int ac, char **av, char **env_var)
 		write (STDERR_FILENO, ": no such file or directory: ", 28);
 		return (EXIT_FAILURE);
 	}
-	if (!av[2][0] || !av[3][0])
+	if (!av[2][0] || !av[3][0] || av[2][0] == ' ' || av[3][0] == ' ')
 	{
 		write (STDERR_FILENO, av[0], ft_strlen(av[0]));
 		write (STDERR_FILENO, ": permission denied:", 19);

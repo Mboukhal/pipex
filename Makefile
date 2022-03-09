@@ -14,11 +14,12 @@
 NAME				= pipex
 
 CFILES				= pipex.c ft_strlen.c ft_strncmp.c ft_strchr.c ft_split.c 		\
-					ft_bzero.c ft_memset.c ft_strlcat.c ft_strlcpy.c pipex_utils.c	
+					ft_bzero.c ft_memset.c ft_strlcat.c ft_strlcpy.c pipex_utils.c 	\
+					ft_isalpha.c
 
-CFLAGS				= -Wall -Wextra -Werror 
+CFLAGS				= -Wall -Wextra -Werror #-fsanitize=address
 RM					= rm -rf
-CC					= clang
+CC					= cc
 
 OBJ			= $(CFILES:.c=.o)
 
@@ -36,6 +37,6 @@ clean:
 
 re: fclean all
 
-all: $(NAME)
+all: $(NAME) clean
 
 .PHONY: re fclean all clean

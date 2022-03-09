@@ -22,7 +22,7 @@ static int	cheak_access(char *tmp, int *i, char **line, int *len)
 		free(line);
 		return (EXIT_FAILURE);
 	}
-	ft_bzero(tmp, len[0] + len[1] + 2);
+	ft_bzero(tmp, len[0] + len[1] + 1);
 	free(tmp);
 	(*i)++;
 	return (EXIT_SUCCESS);
@@ -34,12 +34,27 @@ static char	*set_cmd_test_path(int *len, char *path, char *cmd)
 
 	len[0] = ft_strlen(path);
 	tmp = malloc (sizeof(char) * (len[0] + len[1] + 2));
-	if (!tmp)
+	if (!tmp || cmd[0] == ' ')
 		exit(EXIT_FAILURE);
 	ft_strlcpy(tmp, path, len[0] + 1);
 	tmp[len[0]] = '/';
+	tmp[len[0] + 1] = '\0';
 	ft_strlcat(tmp, cmd, len[0] + len[1] + 2);
 	return (tmp);
+}
+
+char *allocate_scrypt(char *cmd)
+{
+	int		cmd_len;
+	char	*tmp;
+
+	if (access (cmd, X_OK) != 0)
+		return (NULL);
+	cmd_len = ft_strlen(cmd);
+	tmp = malloc (sizeof(char) * (cmd_len + 1));
+	ft_strlcpy(tmp, cmd, cmd_len + 1);
+	tmp[cmd_len] = '\0';
+	return(tmp);
 }
 
 char	*check_valid_path(char **env_var, char *cmd)
@@ -51,12 +66,15 @@ char	*check_valid_path(char **env_var, char *cmd)
 
 	i[0] = 0;
 	i[1] = 0;
-	if (!(access(cmd, X_OK)))
-		return (cmd);
+	if (cmd[0] == '.' && cmd[1] == '/' )
+	{
+		tmp = allocate_scrypt(cmd);
+		return (tmp);
+	}
 	while (env_var[i[0]++] != NULL)
 		if (!(ft_strncmp(env_var[i[0]], "PATH=", 5)))
 			break ;
-	line = ft_split(ft_strchr(env_var[i[0]], '/'), ':');
+	line = ft_split(&env_var[i[0]][5], ':');
 	len[1] = ft_strlen(cmd);
 	while (line[i[1]])
 	{
@@ -64,6 +82,7 @@ char	*check_valid_path(char **env_var, char *cmd)
 		if (cheak_access(tmp, &i[1], line, len) == EXIT_FAILURE)
 			break ;
 	}
+	// printf("+%s+\n", tmp);
 	return (tmp);
 }
 
