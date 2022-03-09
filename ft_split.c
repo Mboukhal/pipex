@@ -66,7 +66,7 @@ static void	*ft_w(char **s, char *str, char ch, int wNumber)
 		w[i] = str[i];
 		i++;
 	}
-	w[i] = 0;
+	w[i] = '\0';
 	return (w);
 }
 
@@ -78,7 +78,7 @@ char	**ft_split(char const *s, char c)
 	if (!s)
 		return (NULL);
 	str = (char **)malloc(sizeof(char *)
-			* count_str((char *)s, c) + 1);
+			* (count_str((char *)s, c) + 1));
 	if (!str)
 		return (NULL);
 	i[0] = 0;
@@ -95,6 +95,6 @@ char	**ft_split(char const *s, char c)
 		while (*s && *s != c)
 			s++;
 	}
-	str[i[0]] = 0;
+	str[i[0]] = NULL;
 	return (str);
 }
