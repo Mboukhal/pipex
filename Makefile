@@ -6,7 +6,7 @@
 #    By: mboukhal <mboukhal@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/12/04 21:39:40 by mboukhal          #+#    #+#              #
-#    Updated: 2022/02/28 18:51:24 by mboukhal         ###   ########.fr        #
+#    Updated: 2022/03/10 15:03:01 by mboukhal         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,9 +15,9 @@ NAME				= pipex
 
 CFILES				= pipex.c ft_strlen.c ft_strncmp.c ft_strchr.c ft_split.c 		\
 					ft_bzero.c ft_memset.c ft_strlcat.c ft_strlcpy.c pipex_utils.c 	\
-					ft_isalpha.c
+					ft_isalpha.c exit_error.c
 
-CFLAGS				= -Wall -Wextra -Werror #-fsanitize=address
+CFLAGS				= -Wall -Wextra -Werror
 RM					= rm -rf
 CC					= cc
 
@@ -37,6 +37,6 @@ clean:
 
 re: fclean all
 
-all: $(NAME) clean
+all: $(NAME)
 
 .PHONY: re fclean all clean

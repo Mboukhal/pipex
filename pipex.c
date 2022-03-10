@@ -6,7 +6,7 @@
 /*   By: mboukhal <mboukhal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/14 16:40:11 by mboukhal          #+#    #+#             */
-/*   Updated: 2022/03/02 16:28:10 by mboukhal         ###   ########.fr       */
+/*   Updated: 2022/03/10 14:43:07 by mboukhal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,47 +51,40 @@ static void	execute_pipe(char **cmd, char **arg1, char **arg2, int *file_fd)
 	exec_pid(fd, cmd, arg2, 1);
 }
 
+static	char	**set_arg(char **cmd_path, char *cmd, char **env_var)
+{
+	char	*tmp;
+	char	**args;
+	int		cmd_len;
+
+	cmd_len = ft_strlen(cmd);
+	tmp = malloc(sizeof(char) * (cmd_len + 4));
+	if (cmd[0] == '.' && cmd[1] == '/')
+	{
+		*cmd_path = malloc (sizeof(char) * 9);
+		ft_strlcpy(*cmd_path, "/bin/sh", 8);
+		ft_strlcpy(tmp, "sh ", 4);
+		tmp[3] = '\0';
+		ft_strlcat(tmp, cmd, cmd_len + 4);
+		args = ft_split(tmp, ' ');
+	}
+	else
+	{
+		args = ft_split(cmd, ' ');
+		*cmd_path = check_valid_path(env_var, args[0]);
+	}
+	free(tmp);
+	return (args);
+}
+
 static void	set_file_args(char **av, char **env_var, int *fd)
 {
 	char	**args1;
 	char	**args2;
-	char	*tmp;
 	char	*cmd_path[2];
 
-	tmp = malloc(sizeof(char) * (ft_strlen(av[2]) + 4));
-	if (av[2][0] == '.' && av[2][1] == '/')
-	{
-		cmd_path[0] = malloc(sizeof(char) *  8);
-		ft_strlcpy(cmd_path[0], "/bin/sh", 8);
-		cmd_path[0][8] = '\0';
-		ft_strlcpy(tmp, "sh ", 4);
-		ft_strlcat(tmp, av[2], ft_strlen(av[2]) + 4);
-		args1 = ft_split(tmp, ' ');
-	}
-	else
-	{
-		args1 = ft_split(av[2], ' ');
-		cmd_path[0] = check_valid_path (env_var, args1[0]);
-	}
-	free(tmp);
-	tmp = malloc(sizeof(char) * (ft_strlen(av[3]) + 4));
-	if (av[3][0] == '.' && av[3][1] == '/')
-	{
-		cmd_path[1] = malloc(sizeof(char) *  8);
-		ft_strlcpy(cmd_path[1], "/bin/sh", 8);
-		cmd_path[1][8] = '\0';
-		ft_strlcpy(tmp, "sh ", 4);
-		ft_strlcat(tmp, av[3], ft_strlen(av[3]) + 4);
-		// printf("%s\n", tmp);
-		args2 = ft_split(tmp, ' ');
-	}
-	else
-	{
-
-		args2 = ft_split(av[3], ' ');
-		cmd_path[1] = check_valid_path (env_var, args2[0]);
-	}
-	free(tmp);
+	args1 = set_arg(&cmd_path[0], av[2], env_var);
+	args2 = set_arg(&cmd_path[1], av[3], env_var);
 	execute_pipe(cmd_path, args1, args2, fd);
 }
 

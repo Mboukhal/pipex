@@ -6,7 +6,7 @@
 /*   By: mboukhal <mboukhal@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/14 20:35:15 by mboukhal          #+#    #+#             */
-/*   Updated: 2022/03/03 13:44:23 by mboukhal         ###   ########.fr       */
+/*   Updated: 2022/03/10 14:53:05 by mboukhal         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ static char	*set_cmd_test_path(int *len, char *path, char *cmd)
 	return (tmp);
 }
 
-char *allocate_scrypt(char *cmd)
+char	*allocate_scrypt(char *cmd)
 {
 	int		cmd_len;
 	char	*tmp;
@@ -54,7 +54,7 @@ char *allocate_scrypt(char *cmd)
 	tmp = malloc (sizeof(char) * (cmd_len + 1));
 	ft_strlcpy(tmp, cmd, cmd_len + 1);
 	tmp[cmd_len] = '\0';
-	return(tmp);
+	return (tmp);
 }
 
 char	*check_valid_path(char **env_var, char *cmd)
@@ -66,11 +66,6 @@ char	*check_valid_path(char **env_var, char *cmd)
 
 	i[0] = 0;
 	i[1] = 0;
-	if (cmd[0] == '.' && cmd[1] == '/' )
-	{
-		tmp = allocate_scrypt(cmd);
-		return (tmp);
-	}
 	while (env_var[i[0]++] != NULL)
 		if (!(ft_strncmp(env_var[i[0]], "PATH=", 5)))
 			break ;
@@ -81,8 +76,9 @@ char	*check_valid_path(char **env_var, char *cmd)
 		tmp = set_cmd_test_path(len, line[i[1]], cmd);
 		if (cheak_access(tmp, &i[1], line, len) == EXIT_FAILURE)
 			break ;
+		if (line[i[1] + 1] == NULL)
+			cmd_not_found(cmd);
 	}
-	// printf("+%s+\n", tmp);
 	return (tmp);
 }
 
