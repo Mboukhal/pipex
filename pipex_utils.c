@@ -17,8 +17,11 @@ static int	cheak_access(char *tmp, int *i, char **line, int *len)
 	if (access (tmp, X_OK) == 0)
 	{
 		*i = 0;
-		while (line[(*i)++] != NULL)
+		while (line[*i] != NULL)
+		{
 			free(line[*i]);
+			(*i)++;
+		}
 		free(line);
 		return (EXIT_FAILURE);
 	}

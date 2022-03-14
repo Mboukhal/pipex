@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "pipex.h"
+#include <sys/wait.h>
 
 static void	exec_pid(int *fd, char **cmd, char **arg, int mode)
 {
@@ -36,18 +37,18 @@ static void	exec_pid(int *fd, char **cmd, char **arg, int mode)
 static void	execute_pipe(char **cmd, char **arg1, char **arg2, int *file_fd)
 {
 	int	fd[4];
-	int	pid[2];
+	pid_t	pid;
 
 	fd[2] = file_fd[0];
 	fd[3] = file_fd[1];
 	if (pipe(fd) == -1)
 		return ;
-	pid[0] = fork();
-	if (pid[0] == -1)
+	pid = fork();
+	if (pid == -1)
 		return ;
-	if (pid[0] == 0)
+	if (pid == 0)
 		exec_pid(fd, cmd, arg1, 0);
-	waitpid(pid[0], NULL, 0);
+	waitpid(pid, 0, 0);
 	exec_pid(fd, cmd, arg2, 1);
 }
 
@@ -91,7 +92,6 @@ static void	set_file_args(char **av, char **env_var, int *fd)
 int	main(int ac, char **av, char **env_var)
 {
 	int	fd[2];
-	int	i;
 
 	if (ac != 5)
 	{
@@ -111,7 +111,6 @@ int	main(int ac, char **av, char **env_var)
 		return (EXIT_FAILURE);
 	}
 	errno = 0;
-	i = 0;
 	open_in_out_put(fd, (const char **)av);
 	set_file_args(av, env_var, fd);
 	return (EXIT_SUCCESS);
